@@ -1749,18 +1749,192 @@ openclaw --profile writer agent -m "测试" --session-id test-fix
 
 ---
 
-#### 19.3 经验总结
+#### 19.3 Artist 实例配置问题（长连接失败）
+
+**发现时间**：2026-03-18 19:42
+
+**症状**：
+- 飞书后台检测不到 Artist 的长连接
+- WebSocket 连接失败
+- 日志报错：`system busy` 和 `Cannot read properties of undefined`
+
+---
+
+##### 问题 1：App Secret 拼写错误
+
+**错误配置**：
+```json
+{
+  "channels": {
+    "feishu": {
+      "appId": "cli_a930359590b81bd3",
+      "appSecret": "EEIgnZe4wtwDUTCYamoE5KfHkULe5SrcN"  // ❌ 多了一个 E
+    }
+  }
+}
+```
+
+**正确配置**：
+```json
+{
+  "channels": {
+    "feishu": {
+      "appId": "cli_a930359590b81bd3",
+      "appSecret": "EIgnZe4wtwDUTCYamoE5KfHkULe5SrcN"  // ✅ 正确
+    }
+  }
+}
+```
+
+**修复方法**：
+```bash
+# 编辑配置文件
+nano ~/.openclaw-artist/openclaw.json
+
+# 修正 App Secret（删除多余的 E）
+
+# 重启服务
+systemctl --user restart openclaw-artist.service
+```
+
+---
+
+##### 问题 2：缺少 commands 配置
+
+**错误配置**：
+```json
+{
+  // Artist 配置中没有 commands 部分 ❌
+  "channels": { ... },
+  "gateway": { ... }
+}
+```
+
+**正确配置**：
+```json
+{
+  "commands": {                    // ✅ 添加 commands 配置
+    "native": "auto",
+    "nativeSkills": "auto",
+    "restart": true,
+    "ownerDisplay": "raw"
+  },
+  "channels": { ... },
+  "gateway": { ... }
+}
+```
+
+**修复方法**：
+```bash
+# 从 Coder 实例复制 commands 配置
+# 编辑 ~/.openclaw-artist/openclaw.json
+# 在 channels 之前添加 commands 部分
+
+# 重启服务
+systemctl --user restart openclaw-artist.service
+```
+
+---
+
+##### 问题 3：飞书长连接未启用
+
+**症状**：
+```
+[error]: receive events or callbacks through persistent connection only available 
+in self-build & Feishu app, Configured in:
+  Developer Console(开发者后台) 
+    -> Events and Callbacks(事件与回调)
+    -> Mode of event/callback subscription(订阅方式)
+    -> Receive events/callbacks through persistent connection(使用长连接接收事件/回调)
+```
+
+**原因**：
+- 飞书开发者后台未开启长连接接收事件
+- 需要在飞书后台手动配置
+
+**解决步骤**：
+
+1. **登录飞书开放平台**
+   - 访问：https://open.feishu.cn
+
+2. **进入 Artist 应用管理**
+   - App ID: `cli_a930359590b81bd3`
+
+3. **配置事件与回调**
+   - 点击「事件与回调」（Events and Callbacks）
+
+4. **启用长连接**
+   - 找到「订阅方式」（Mode of event/callback subscription）
+   - 选择：✅ **使用长连接接收事件/回调**
+   - (Receive events/callbacks through persistent connection)
+
+5. **保存配置**
+   - 点击保存按钮
+
+6. **验证连接**
+```bash
+# 查看日志确认 WebSocket 连接成功
+journalctl --user -u openclaw-artist.service -f
+
+# 成功日志：
+# [feishu] feishu[default]: WebSocket client started
+# [info]: [ '[ws]', 'ws client ready' ]  ✅
+```
+
+---
+
+##### 验证日志
+
+**成功连接的日志**：
+```log
+Mar 18 19:43:12 lenovo2026 node[196009]: 
+2026-03-18T19:43:12.259+08:00 [feishu] feishu[default]: WebSocket client started
+Mar 18 19:43:12 lenovo2026 node[196009]: 
+2026-03-18T19:43:12.493+08:00 [info]: [ '[ws]', 'ws client ready' ]
+```
+
+**失败日志**（修复前）：
+```log
+Mar 18 19:42:39 lenovo2026 node[195525]: 
+2026-03-18T19:42:39.706+08:00 [error]: [ '[ws]', 'code: 1000040345, system busy' ]
+Mar 18 19:42:39 lenovo2026 node[195525]: 
+2026-03-18T19:42:39.716+08:00 [error]: [ '[ws]', 'Cannot read properties of undefined' ]
+Mar 18 19:42:39 lenovo2026 node[195525]: 
+2026-03-18T19:42:39.724+08:00 [info]: [ 'ws', 'unable to connect to the server after trying 6 times")' ]
+```
+
+---
+
+#### 19.4 经验总结
 
 **教训**：
 1. 复制模板配置时要逐项检查所有字段
-2. 特别关注路径相关的配置
-3. 配置完成后必须验证
-4. 记录错误以便后续参考
+2. 特别关注路径、端口、密钥等关键配置
+3. App Secret 等凭证要仔细核对，避免拼写错误
+4. 配置完成后必须验证
+5. 飞书长连接需要在开发者后台手动开启
+6. 记录错误以便后续参考
 
 **改进措施**：
 - 在 MEMORY.md 中记录「变更验证原则」
-- 创建配置验证清单
+- 创建配置验证清单（见第 17 章）
 - 编写自动化验证脚本（待完成）
+- 添加 Artist 配置问题到故障排除章节
+
+---
+
+#### 19.5 配置检查清单（Artist 实例）
+
+创建 Artist 实例后务必检查：
+
+- [ ] **App ID**：`cli_a930359590b81bd3`（格式正确）
+- [ ] **App Secret**：`EIgnZe4wtwDUTCYamoE5KfHkULe5SrcN`（无拼写错误）
+- [ ] **commands 配置**：已添加 commands 部分
+- [ ] **端口**：19889（不与其他实例冲突）
+- [ ] **WebSocket**：日志显示 `ws client ready`
+- [ ] **飞书后台**：已开启长连接接收事件
+- [ ] **路由绑定**：`openclaw agents bindings` 显示 artist-bot
+- [ ] **飞书配对**：已授权用户访问
 
 ---
 
@@ -2061,6 +2235,9 @@ grep -E "error|fail|exception" main.log
 | 2026-03-18 18:49 | 编写本教程 | 版本 1.0 完成 |
 | 2026-03-18 19:27 | Artist 实例配置完成 | 四实例协作架构 |
 | 2026-03-18 19:30 | 更新教程添加 Artist 章节 | 版本 1.1 完成 |
+| 2026-03-18 19:32 | 修正 Artist 端口为 19889 | 端口更正 |
+| 2026-03-18 19:42 | 修复 Artist 长连接问题 | App Secret + commands + 飞书配置 |
+| 2026-03-18 19:44 | 补充 Artist 配置问题到教程 | 版本 1.2 完成 |
 
 ---
 
