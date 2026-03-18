@@ -2,6 +2,11 @@
 
 _从零开始配置三个独立运行的 OpenClaw 实例，实现飞书多 Bot 协作_
 
+![Version](https://img.shields.io/badge/version-1.0-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+![OpenClaw](https://img.shields.io/badge/OpenClaw-2026.3.13-orange)
+![Platform](https://img.shields.io/badge/platform-Linux-lightgrey)
+
 **版本**: 1.0  
 **最后更新**: 2026-03-18  
 **OpenClaw 版本**: 2026.3.13  
