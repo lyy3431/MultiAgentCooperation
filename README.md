@@ -272,8 +272,8 @@ openclaw init
   "channels": {
     "feishu": {
       "enabled": true,
-      "appId": "cli_a93fb1007ab85cd1",
-      "appSecret": "th47X8trEmE9YNeeYgwWucXUOlPFUEBO",
+      "appId": "cli_YOUR_MAIN_APP_ID",
+      "appSecret": "YOUR_MAIN_APP_SECRET",
       "connectionMode": "websocket",
       "domain": "feishu",
       "groupPolicy": "open"
@@ -283,7 +283,7 @@ openclaw init
     "mode": "local",
     "auth": {
       "mode": "token",
-      "token": "e316fa1d3d5e94218a681279671a1ad52506bd4f7ec3033f"
+      "token": "YOUR_MAIN_GATEWAY_TOKEN"
     }
   }
 }
@@ -323,7 +323,7 @@ RestartSec=5
 KillMode=process
 Environment=HOME=/home/lenovo
 Environment=OPENCLAW_GATEWAY_PORT=18789
-Environment=OPENCLAW_GATEWAY_TOKEN=e316fa1d3d5e94218a681279671a1ad52506bd4f7ec3033f
+Environment=OPENCLAW_GATEWAY_TOKEN=YOUR_MAIN_GATEWAY_TOKEN
 Environment=OPENCLAW_SERVICE_MARKER=openclaw
 Environment=OPENCLAW_SERVICE_KIND=gateway
 
@@ -357,7 +357,7 @@ systemctl --user enable openclaw-gateway.service
 Bot 会回复：
 ```
 OpenClaw: access not configured.
-Your Feishu user id: ou_9cca253db3df826372ebc3d4f4bf89c7
+Your Feishu user id: ou_YOUR_FEISHU_USER_ID
 Pairing code: U7Y3A3FB
 Ask the bot owner to approve with:
 openclaw pairing approve feishu U7Y3A3FB
@@ -370,7 +370,7 @@ openclaw pairing approve feishu U7Y3A3FB
 
 **输出**：
 ```
-Approved feishu sender ou_9cca253db3df826372ebc3d4f4bf89c7.
+Approved feishu sender ou_YOUR_FEISHU_USER_ID.
 ```
 
 ---
@@ -583,7 +583,7 @@ Environment=OPENCLAW_PROFILE=coder
 Environment=OPENCLAW_STATE_DIR=/home/lenovo/.openclaw-coder
 Environment=OPENCLAW_WORKSPACE=/home/lenovo/.openclaw/workspace-coder
 Environment=OPENCLAW_GATEWAY_PORT=18989
-Environment=OPENCLAW_GATEWAY_TOKEN=62afc736f55cf17d40406f7c4ece5da488395591
+Environment=OPENCLAW_GATEWAY_TOKEN=YOUR_CODER_GATEWAY_TOKEN
 Environment=OPENCLAW_SERVICE_MARKER=openclaw-coder
 Environment=OPENCLAW_SERVICE_KIND=gateway
 Environment=OPENCLAW_SERVICE_VERSION=2026.3.13
@@ -710,7 +710,7 @@ Environment=OPENCLAW_PROFILE=writer
 Environment=OPENCLAW_STATE_DIR=/home/lenovo/.openclaw-writer
 Environment=OPENCLAW_WORKSPACE=/home/lenovo/.openclaw/workspace-writer
 Environment=OPENCLAW_GATEWAY_PORT=18689
-Environment=OPENCLAW_GATEWAY_TOKEN=db4dc46767dddeaa96855b116efc8b874d3e2b6a
+Environment=OPENCLAW_GATEWAY_TOKEN=YOUR_WRITER_GATEWAY_TOKEN
 Environment=OPENCLAW_SERVICE_MARKER=openclaw-writer
 
 [Install]
@@ -789,7 +789,7 @@ grep -A2 '"bailian"' ~/.openclaw-coder/openclaw.json
 grep -A2 '"bailian"' ~/.openclaw-writer/openclaw.json
 
 # 如需更新，编辑 openclaw.json
-# "apiKey": "sk-sp-d8c20850609e4f99b80212a4b69eca9a"
+# "apiKey": "sk-sp-YOUR_BAILIAN_API_KEY"
 ```
 
 ---
@@ -1203,7 +1203,7 @@ openclaw agents bind --agent writer --bind feishu:writer-bot
 ```
 Bot 回复：
 OpenClaw: access not configured.
-Your Feishu user id: ou_xxx
+Your Feishu user id: ou_YOUR_FEISHU_USER_ID
 Pairing code: ABCD1234
 Ask the bot owner to approve with:
 openclaw pairing approve feishu ABCD1234
@@ -1237,7 +1237,7 @@ cat ~/.openclaw/credentials/feishu-default-allowFrom.json
 {
   "version": 1,
   "allowFrom": [
-    "ou_9cca253db3df826372ebc3d4f4bf89c7"
+    "ou_YOUR_FEISHU_USER_ID"
   ]
 }
 ```
